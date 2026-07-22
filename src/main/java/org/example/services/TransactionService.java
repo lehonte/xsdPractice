@@ -1,0 +1,47 @@
+package org.example.services;
+
+import com.example.demo.generated.GetTransactionHistoryRequest;
+import com.example.demo.generated.GetTransactionHistoryResponse;
+import com.example.demo.generated.TransactionType;
+import lombok.RequiredArgsConstructor;
+import org.example.entities.Transaction;
+import org.example.repositories.TransactionRepository;
+import org.springframework.stereotype.Service;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class TransactionService {
+
+    private final TransactionRepository transactionRepository;
+
+    public GetTransactionHistoryResponse getTransactionHistory(GetTransactionHistoryRequest request) {
+        List<Transaction> transactions = transactionRepository.findByAccountId(request.getAccountNumber());
+
+        GetTransactionHistoryResponse response = new GetTransactionHistoryResponse();
+
+        DatatypeFactory factory;
+        try {
+            factory = DatatypeFactory.newInstance();
+        } catch (DatatypeConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+
+        response.getTransaction().addAll(transactions.stream().map(transaction -> {
+            XMLGregorianCalendar xmlCalendar = factory.newXMLGregorianCalendar(transaction.getDate().toString());
+
+            TransactionType transactionType = new TransactionType();
+            transactionType.setAmount(transaction.getAmount());
+            transactionType.setType(transaction.getType());
+            transactionType.setDate(xmlCalendar);
+            return transactionType;
+        }).toList());
+
+        return response;
+    }
+}

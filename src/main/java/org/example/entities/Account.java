@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 @Entity
 @Table(name = "accounts")
@@ -22,7 +23,7 @@ public class Account {
     private String owner;
 
     @Column(name = "account_number", unique = true, nullable = false)
-    private Long accountNumber;
+    private BigInteger accountNumber;
 
     @Column(name = "balance")
     private BigDecimal balance;
