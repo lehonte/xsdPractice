@@ -1,0 +1,14 @@
+CREATE TABLE accounts(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    owner VARCHAR(255) UNIQUE NOT NULL,
+    account_number BIGINT UNIQUE NOT NULL,
+    balance NUMERIC(19,4)
+);
+
+CREATE TABLE transactions(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    account_id BIGINT REFERENCES accounts(id),
+    amount NUMERIC(19,4),
+    type VARCHAR(255) UNIQUE NOT NULL,
+    date DATE NOT NULL
+)

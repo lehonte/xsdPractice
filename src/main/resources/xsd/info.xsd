@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.org/xsdPractice"
+           xmlns="http://example.org/xsdPractice"
+           elementFormDefault="qualified">
+    <xs:element name="GetAccountBalanceRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="accountNumber" type="xs:integer"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="GetAccountBalanceResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="ownerName" type="xs:string"/>
+                <xs:element name="balance" type="xs:decimal"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="OperationRequestType">
+        <xs:sequence>
+            <xs:element name="accountNumber" type="xs:integer"/>
+            <xs:element name="amount" type="xs:decimal"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="OperationResponseType">
+        <xs:sequence>
+            <xs:element name="balance" type="xs:decimal"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="DepositRequest" type="OperationRequestType"/>
+
+    <xs:element name="DepositResponse" type="OperationResponseType"/>
+
+    <xs:element name="WithdrawRequest" type="OperationRequestType"/>
+
+    <xs:element name="WithdrawResponse" type="OperationResponseType"/>
+
+    <xs:element name="GetTransactionHistoryRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="accountNumber" type="xs:integer"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="GetTransactionHistoryResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="transaction" type="TransactionType" maxOccurs="unbounded" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="TransactionType">
+        <xs:sequence>
+            <xs:element name="amount" type="xs:decimal"/>
+            <xs:element name="type" type="xs:string"/>
+            <xs:element name="date" type="xs:date"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>
