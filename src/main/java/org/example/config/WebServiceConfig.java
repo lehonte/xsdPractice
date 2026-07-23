@@ -34,7 +34,7 @@ public class WebServiceConfig {
         DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
         wsdl11Definition.setPortTypeName("CurrencyWsPort");
         wsdl11Definition.setLocationUri("/ws");
-        wsdl11Definition.setTargetNamespace("http://example.org/xsdPracticee");
+        wsdl11Definition.setTargetNamespace("http://example.org/xsdPractice");
         wsdl11Definition.setSchema(schema);
         return wsdl11Definition;
     }

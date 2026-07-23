@@ -1,9 +1,7 @@
 package org.example.controllers;
 
-import com.example.demo.generated.GetAccountBalanceRequest;
-import com.example.demo.generated.GetAccountBalanceResponse;
-import com.example.demo.generated.OperationRequestType;
-import com.example.demo.generated.OperationResponseType;
+import com.example.demo.generated.*;
+import jakarta.xml.bind.JAXBElement;
 import lombok.RequiredArgsConstructor;
 import org.example.services.AccountService;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
@@ -16,6 +14,7 @@ import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 public class AccountController {
 
     private final AccountService accountService;
+    private final ObjectFactory objectFactory = new ObjectFactory();
 
     @PayloadRoot(namespace = "http://example.org/xsdPractice", localPart = "GetAccountBalanceRequest")
     @ResponsePayload
@@ -25,13 +24,17 @@ public class AccountController {
 
     @PayloadRoot(namespace = "http://example.org/xsdPractice", localPart = "DepositRequest")
     @ResponsePayload
-    public OperationResponseType deposit(@RequestPayload final OperationRequestType operationRequestType) {
-        return accountService.deposit(operationRequestType);
+    public JAXBElement<OperationResponseType> deposit(@RequestPayload final JAXBElement<OperationRequestType> requestXML) {
+        OperationRequestType request = requestXML.getValue();
+        OperationResponseType response = accountService.deposit(request);
+        return objectFactory.createDepositResponse(response);
     }
 
     @PayloadRoot(namespace = "http://example.org/xsdPractice", localPart = "WithdrawRequest")
     @ResponsePayload
-    public OperationResponseType withdraw(@RequestPayload final OperationRequestType operationRequestType) {
-        return accountService.withdraw(operationRequestType);
+    public JAXBElement<OperationResponseType> withdraw(@RequestPayload final JAXBElement<OperationRequestType> requestXML) {
+        OperationRequestType request = requestXML.getValue();
+        OperationResponseType response = accountService.withdraw(request);
+        return objectFactory.createWithdrawResponse(response);
     }
 }

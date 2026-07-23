@@ -34,6 +34,8 @@ public class AccountService {
 
         account.setBalance(account.getBalance().add(request.getAmount()));
 
+        accountRepository.save(account);
+
         OperationResponseType response = new OperationResponseType();
         response.setBalance(account.getBalance());
 
@@ -51,6 +53,7 @@ public class AccountService {
         } else {
             account.setBalance(account.getBalance().subtract(request.getAmount()));
             response.setBalance(account.getBalance());
+            accountRepository.save(account);
         }
 
         return response;
