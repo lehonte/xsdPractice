@@ -25,9 +25,9 @@ public class Transaction {
     @Column(name = "amount")
     private BigDecimal amount;
 
-    @Column(name = "type")
+    @Column(name = "type", nullable = false)
     private String type;
 
-    @Column(name = "date")
+    @Column(name = "date", nullable = false)
     private LocalDate date;
 }
