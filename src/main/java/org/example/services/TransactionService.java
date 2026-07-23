@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -21,7 +20,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
 
     public GetTransactionHistoryResponse getTransactionHistory(GetTransactionHistoryRequest request) {
-        List<Transaction> transactions = transactionRepository.findByAccountId(request.getAccountNumber());
+        List<Transaction> transactions = transactionRepository.findByAccount_AccountNumber(request.getAccountNumber());
 
         GetTransactionHistoryResponse response = new GetTransactionHistoryResponse();
 

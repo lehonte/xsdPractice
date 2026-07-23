@@ -6,16 +6,21 @@ import com.example.demo.generated.OperationRequestType;
 import com.example.demo.generated.OperationResponseType;
 import lombok.RequiredArgsConstructor;
 import org.example.entities.Account;
+import org.example.entities.Transaction;
 import org.example.exceptions.InsufficientFundException;
 import org.example.repositories.AccountRepository;
+import org.example.repositories.TransactionRepository;
 import org.springframework.stereotype.Service;
 import org.example.exceptions.AccountNotFoundException;
+
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
     public GetAccountBalanceResponse getAccountBalance(GetAccountBalanceRequest request) {
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
@@ -36,6 +41,13 @@ public class AccountService {
 
         accountRepository.save(account);
 
+        Transaction transaction = new Transaction();
+        transaction.setAmount(request.getAmount());
+        transaction.setAccount(account);
+        transaction.setType("deposit");
+        transaction.setDate(LocalDate.now());
+        transactionRepository.save(transaction);
+
         OperationResponseType response = new OperationResponseType();
         response.setBalance(account.getBalance());
 
@@ -54,6 +66,13 @@ public class AccountService {
             account.setBalance(account.getBalance().subtract(request.getAmount()));
             response.setBalance(account.getBalance());
             accountRepository.save(account);
+
+            Transaction transaction = new Transaction();
+            transaction.setAmount(request.getAmount());
+            transaction.setAccount(account);
+            transaction.setType("withdraw");
+            transaction.setDate(LocalDate.now());
+            transactionRepository.save(transaction);
         }
 
         return response;
