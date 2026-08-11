@@ -27,4 +27,7 @@ public class Account {
 
     @Column(name = "balance")
     private BigDecimal balance;
+
+    @Column(name = "phone_number", unique = true, nullable = false)
+    private String phoneNumber;
 }

@@ -7,12 +7,16 @@ import com.example.demo.generated.OperationResponseType;
 import lombok.RequiredArgsConstructor;
 import org.example.entities.Account;
 import org.example.entities.Transaction;
+import org.example.events.StrangeTransactionEvent;
 import org.example.exceptions.InsufficientFundException;
 import org.example.repositories.AccountRepository;
 import org.example.repositories.TransactionRepository;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.example.exceptions.AccountNotFoundException;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Service
@@ -21,6 +25,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private final KafkaTemplate<String, StrangeTransactionEvent> kafkaTemplate;
 
     public GetAccountBalanceResponse getAccountBalance(GetAccountBalanceRequest request) {
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
@@ -36,6 +41,8 @@ public class AccountService {
     public OperationResponseType deposit(OperationRequestType request) {
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
                 .orElseThrow(() -> new AccountNotFoundException("Счет " + request.getAccountNumber() + " не найден"));
+
+        findStrangeActivity(request, account);
 
         account.setBalance(account.getBalance().add(request.getAmount()));
 
@@ -58,6 +65,8 @@ public class AccountService {
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
                 .orElseThrow(() -> new AccountNotFoundException("Счет " + request.getAccountNumber() + " не найден"));
 
+        findStrangeActivity(request, account);
+
         OperationResponseType response = new OperationResponseType();
 
         if (account.getBalance().compareTo(request.getAmount()) < 0) {
@@ -76,5 +85,12 @@ public class AccountService {
         }
 
         return response;
+    }
+
+    private void findStrangeActivity(OperationRequestType request, Account account) {
+        if (request.getAmount().compareTo(BigDecimal.valueOf(5000)) < 0) {
+            StrangeTransactionEvent event = new StrangeTransactionEvent(account.getPhoneNumber());
+            kafkaTemplate.send("", event);
+        }
     }
 }
