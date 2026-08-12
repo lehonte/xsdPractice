@@ -7,12 +7,12 @@ import com.example.demo.generated.OperationResponseType;
 import lombok.RequiredArgsConstructor;
 import org.example.entities.Account;
 import org.example.entities.Transaction;
-import org.example.events.StrangeTransactionEvent;
+import org.example.enums.TransactionStatus;
 import org.example.exceptions.InsufficientFundException;
+import org.example.kafka.FindStrangeActivity;
 import org.example.repositories.AccountRepository;
 import org.example.repositories.TransactionRepository;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.example.utils.GenerateTrasaction;
 import org.springframework.stereotype.Service;
 import org.example.exceptions.AccountNotFoundException;
 
@@ -25,7 +25,8 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
-    private final KafkaTemplate<String, StrangeTransactionEvent> kafkaTemplate;
+    private final FindStrangeActivity findStrangeActivity;
+    private final GenerateTrasaction generateTrasaction;
 
     public GetAccountBalanceResponse getAccountBalance(GetAccountBalanceRequest request) {
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
@@ -42,21 +43,23 @@ public class AccountService {
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
                 .orElseThrow(() -> new AccountNotFoundException("Счет " + request.getAccountNumber() + " не найден"));
 
-        findStrangeActivity(request, account);
-
-        account.setBalance(account.getBalance().add(request.getAmount()));
-
-        accountRepository.save(account);
-
         Transaction transaction = new Transaction();
         transaction.setAmount(request.getAmount());
         transaction.setAccount(account);
         transaction.setType("deposit");
         transaction.setDate(LocalDate.now());
+        transaction.setStatus(TransactionStatus.PENDING);
+        String transactionNumber = generateTrasaction.generateTransactionNumber(transaction);
+        transaction.setTransactionNumber(transactionNumber);
         transactionRepository.save(transaction);
 
+        findStrangeActivity.findStrangeActivity(request.getAmount(), account.getPhoneNumber(), transactionNumber);
+
         OperationResponseType response = new OperationResponseType();
-        response.setBalance(account.getBalance());
+        response.setAccountNumber(account.getAccountNumber());
+        response.setAmount(request.getAmount());
+        response.setType("deposit");
+        response.setStatus(String.valueOf(TransactionStatus.PENDING));
 
         return response;
     }
@@ -70,27 +73,25 @@ public class AccountService {
         if (account.getBalance().compareTo(request.getAmount()) < 0) {
             throw new InsufficientFundException("Вы не можете снять больше денег, чем есть у вас на счете");
         } else {
-            findStrangeActivity(request, account);
-
-            account.setBalance(account.getBalance().subtract(request.getAmount()));
-            response.setBalance(account.getBalance());
-            accountRepository.save(account);
 
             Transaction transaction = new Transaction();
             transaction.setAmount(request.getAmount());
             transaction.setAccount(account);
             transaction.setType("withdraw");
             transaction.setDate(LocalDate.now());
+            transaction.setStatus(TransactionStatus.PENDING);
+            String transactionNumber = generateTrasaction.generateTransactionNumber(transaction);
+            transaction.setTransactionNumber(transactionNumber);
             transactionRepository.save(transaction);
+
+            findStrangeActivity.findStrangeActivity(request.getAmount(), account.getPhoneNumber(), transactionNumber);
+
+            response.setAccountNumber(account.getAccountNumber());
+            response.setAmount(request.getAmount());
+            response.setType("deposit");
+            response.setStatus(String.valueOf(TransactionStatus.PENDING));
         }
 
         return response;
-    }
-
-    private void findStrangeActivity(OperationRequestType request, Account account) {
-        if (request.getAmount().compareTo(BigDecimal.valueOf(5000)) < 0) {
-            StrangeTransactionEvent event = new StrangeTransactionEvent(account.getPhoneNumber());
-            kafkaTemplate.send("strange_transaction_topic", event);
-        }
     }
 }
