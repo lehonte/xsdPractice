@@ -11,7 +11,7 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic strangeTransactionTopic() {
-        return TopicBuilder.name("bank")
+        return TopicBuilder.name("strange_transaction_topic")
                 .partitions(3)
                 .replicas(3)
                 .config(TopicConfig.RETENTION_MS_CONFIG, "86400000")

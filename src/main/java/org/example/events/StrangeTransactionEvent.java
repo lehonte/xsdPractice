@@ -1,4 +1,4 @@
 package org.example.events;
 
-public record StrangeTransactionEvent(String number) {
+public record StrangeTransactionEvent(String phoneNumber) {
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResultOfCheckng {
 
-    @KafkaListener(topics = "resultOfCheking")
+    @KafkaListener(topics = "result_of_checking")
     public boolean resultOfChekingActivity(ResultOfChekingEvent event) {
         if (event.status().equals(TransactionStatus.ACCEPTED)) {
             return true;

@@ -65,13 +65,13 @@ public class AccountService {
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
                 .orElseThrow(() -> new AccountNotFoundException("Счет " + request.getAccountNumber() + " не найден"));
 
-        findStrangeActivity(request, account);
-
         OperationResponseType response = new OperationResponseType();
 
         if (account.getBalance().compareTo(request.getAmount()) < 0) {
             throw new InsufficientFundException("Вы не можете снять больше денег, чем есть у вас на счете");
         } else {
+            findStrangeActivity(request, account);
+
             account.setBalance(account.getBalance().subtract(request.getAmount()));
             response.setBalance(account.getBalance());
             accountRepository.save(account);
@@ -90,7 +90,7 @@ public class AccountService {
     private void findStrangeActivity(OperationRequestType request, Account account) {
         if (request.getAmount().compareTo(BigDecimal.valueOf(5000)) < 0) {
             StrangeTransactionEvent event = new StrangeTransactionEvent(account.getPhoneNumber());
-            kafkaTemplate.send("", event);
+            kafkaTemplate.send("strange_transaction_topic", event);
         }
     }
 }
