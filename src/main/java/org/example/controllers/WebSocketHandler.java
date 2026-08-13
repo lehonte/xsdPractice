@@ -1,12 +1,6 @@
 package org.example.controllers;
 
-import jakarta.websocket.OnClose;
-import jakarta.websocket.OnMessage;
-import jakarta.websocket.OnOpen;
-import jakarta.websocket.Session;
-import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
-import org.example.entities.Transaction;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
