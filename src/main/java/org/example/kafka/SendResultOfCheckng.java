@@ -48,17 +48,19 @@ public class SendResultOfCheckng {
         String xml = """
                 <?xml version="1.0" encoding="UTF-8"?>
                              <transactionResult xmlns="http://example.org/xsdPractice">
+                                 <date>%s</date>
                                  <account>%s</account>
                                  <type>%s</type>
                                  <amount>%s</amount>
                                  <status>%s</status>
-                                 <date>%s</date>
+                                 <reason>%s</reason>
                              </transactionResult>
-                """.formatted(transaction.getAccount(),
+                """.formatted(transaction.getDate(),
+                transaction.getAccount(),
                 transaction.getType(),
                 transaction.getAmount(),
                 event.status(),
-                transaction.getDate());
+                event.reason());
 
         switch (event.status()) {
             case ACCEPTED: {
