@@ -3,6 +3,7 @@ package org.example.kafka;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.controllers.WebSocketHandler;
+import org.example.entities.Transaction;
 import org.example.enums.TransactionStatus;
 import org.example.eventEntities.ResultOfChecking;
 import org.example.events.ResultOfChekingEvent;
@@ -34,6 +35,8 @@ public class SendResultOfCheckng {
             return;
         }
         resultOfCheckingRepository.save(new ResultOfChecking(event.transactionNumber()));
+        log.info("Обработанная транзация {} получена с обработки", event.transactionNumber());
+
 
         String xml = """
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -43,12 +46,18 @@ public class SendResultOfCheckng {
                              </transactionResult>
                 """.formatted(event.transactionNumber(), event.status());
 
-        if (event.status().equals(TransactionStatus.ACCEPTED)) {
-            updateTracsationStatus.acceptedTransaction(event.transactionNumber());
-        } else if (event.status().equals(TransactionStatus.BLOCKED)) {
-            updateTracsationStatus.blockedTransaction(event.transactionNumber());
-        } else {
-            throw new UnknownStatusException("Неизвестный статус: " + event.status());
+        switch (event.status()) {
+            case ACCEPTED: {
+                updateTracsationStatus.acceptedTransaction(event.transactionNumber());
+                break;
+            }
+            case BLOCKED: {
+                updateTracsationStatus.blockedTransaction(event.transactionNumber());
+                break;
+            }
+            default: {
+                throw new UnknownStatusException("Неизвестный статус: " + event.status());
+            }
         }
 
         //нельзя отсюда websocket прямо вызывать тк мгновенно улетит соо и это не откатится если в бд не смог обновиться
@@ -58,6 +67,7 @@ public class SendResultOfCheckng {
             @Override
             public void afterCommit() {
                 webSocketHandler.sending(xml);
+                log.info("Сообщение со статусом транзакции {} перенаправлено клиенту", event.transactionNumber());
             }
         });
     }

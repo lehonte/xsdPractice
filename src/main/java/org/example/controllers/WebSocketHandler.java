@@ -34,6 +34,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
             if (session.isOpen()) {
                 try {
                     session.sendMessage(new TextMessage(message));
+                    log.info("Сообщение клиенту отправлено");
                 } catch (IOException e) {
                     log.error("Ошибка отправки сообщения", e.getMessage());
                 }

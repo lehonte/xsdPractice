@@ -1,6 +1,7 @@
 package org.example.utils;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.entities.Account;
 import org.example.entities.Transaction;
 import org.example.enums.TransactionStatus;
@@ -11,6 +12,7 @@ import org.example.repositories.TransactionRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class UpdateTracsationStatus {
@@ -26,7 +28,20 @@ public class UpdateTracsationStatus {
         Account account = accountRepository.findByAccountNumber(transaction.getAccount().getAccountNumber())
                 .orElseThrow(() -> new AccountNotFoundException("Счет " + transaction.getAccount().getAccountNumber() + " не найден"));
 
-        account.setBalance(account.getBalance().add(transaction.getAmount()));
+        switch (transaction.getType()) {
+            case "deposit": {
+                account.setBalance(account.getBalance().add(transaction.getAmount()));
+                break;
+            }
+            case "withdrawal": {
+                account.setBalance(account.getBalance().subtract(transaction.getAmount()));
+                break;
+            }
+            default: {
+                log.error("Неизвестная операция {}",transaction.getType());
+            }
+        }
+
         transaction.setStatus(TransactionStatus.ACCEPTED);
         accountRepository.save(account);
         transactionRepository.save(transaction);
@@ -37,12 +52,7 @@ public class UpdateTracsationStatus {
         Transaction transaction = transactionRepository.findByTransactionNumber(transactionNumber)
                 .orElseThrow(() -> new TransactionNotFoundException("Транзакция " + transactionNumber + " не найдена"));
 
-        Account account = accountRepository.findByAccountNumber(transaction.getAccount().getAccountNumber())
-                .orElseThrow(() -> new AccountNotFoundException("Счет " + transaction.getAccount().getAccountNumber() + " не найден"));
-
-        account.setBalance(account.getBalance().subtract(transaction.getAmount()));
         transaction.setStatus(TransactionStatus.BLOCKED);
-        accountRepository.save(account);
         transactionRepository.save(transaction);
     }
 }

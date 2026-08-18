@@ -56,10 +56,24 @@ public class AccountService {
         findStrangeActivity.findStrangeActivity(request.getAmount(), account.getPhoneNumber(), transactionNumber);
 
         OperationResponseType response = new OperationResponseType();
+
+        if (findStrangeActivity.findStrangeActivity(request.getAmount(), account.getPhoneNumber(), transactionNumber)) {
+            response.setAccountNumber(account.getAccountNumber());
+            response.setAmount(request.getAmount());
+            response.setType("deposit");
+            response.setStatus(String.valueOf(TransactionStatus.PENDING));
+            return response;
+        }
+
+        account.setBalance(account.getBalance().add(transaction.getAmount()));
+        transaction.setStatus(TransactionStatus.ACCEPTED);
+        accountRepository.save(account);
+        transactionRepository.save(transaction);
+
         response.setAccountNumber(account.getAccountNumber());
         response.setAmount(request.getAmount());
         response.setType("deposit");
-        response.setStatus(String.valueOf(TransactionStatus.PENDING));
+        response.setStatus(String.valueOf(TransactionStatus.ACCEPTED));
 
         return response;
     }
@@ -84,12 +98,23 @@ public class AccountService {
             transaction.setTransactionNumber(transactionNumber);
             transactionRepository.save(transaction);
 
-            findStrangeActivity.findStrangeActivity(request.getAmount(), account.getPhoneNumber(), transactionNumber);
+            if (findStrangeActivity.findStrangeActivity(request.getAmount(), account.getPhoneNumber(), transactionNumber)) {
+                response.setAccountNumber(account.getAccountNumber());
+                response.setAmount(request.getAmount());
+                response.setType("withdraw");
+                response.setStatus(String.valueOf(TransactionStatus.PENDING));
+                return response;
+            }
+
+            account.setBalance(account.getBalance().subtract(transaction.getAmount()));
+            transaction.setStatus(TransactionStatus.ACCEPTED);
+            accountRepository.save(account);
+            transactionRepository.save(transaction);
 
             response.setAccountNumber(account.getAccountNumber());
             response.setAmount(request.getAmount());
-            response.setType("deposit");
-            response.setStatus(String.valueOf(TransactionStatus.PENDING));
+            response.setType("withdraw");
+            response.setStatus(String.valueOf(TransactionStatus.ACCEPTED));
         }
 
         return response;
