@@ -7,8 +7,10 @@ import org.example.entities.Transaction;
 import org.example.enums.TransactionStatus;
 import org.example.eventEntities.ResultOfChecking;
 import org.example.events.ResultOfChekingEvent;
+import org.example.exceptions.TransactionNotFoundException;
 import org.example.exceptions.UnknownStatusException;
 import org.example.repositories.ResultOfCheckingRepository;
+import org.example.repositories.TransactionRepository;
 import org.example.utils.UpdateTracsationStatus;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,7 @@ public class SendResultOfCheckng {
     private final UpdateTracsationStatus updateTracsationStatus;
     private final WebSocketHandler webSocketHandler;
     private final ResultOfCheckingRepository resultOfCheckingRepository;
+    private final TransactionRepository transactionRepository;
 
     @Transactional(propagation = Propagation.REQUIRED)
     @KafkaListener(topics = "result_of_checking")
@@ -34,17 +37,28 @@ public class SendResultOfCheckng {
             log.info("Результат транзакции {} уже отправлен на обработку", event.transactionNumber());
             return;
         }
-        resultOfCheckingRepository.save(new ResultOfChecking(event.transactionNumber()));
-        log.info("Обработанная транзация {} получена с обработки", event.transactionNumber());
 
+        Transaction transaction = transactionRepository.findByTransactionNumber(event.transactionNumber())
+                .orElseThrow(() -> new TransactionNotFoundException(event.transactionNumber()));
+
+        resultOfCheckingRepository.save(new ResultOfChecking(event.transactionNumber()));
+
+        log.info("Обработанная транзация {} получена с обработки", event.transactionNumber());
 
         String xml = """
                 <?xml version="1.0" encoding="UTF-8"?>
                              <transactionResult xmlns="http://example.org/xsdPractice">
-                                 <number>%s</number>
+                                 <account>%s</account>
+                                 <type>%s</type>
+                                 <amount>%s</amount>
                                  <status>%s</status>
+                                 <date>%s</date>
                              </transactionResult>
-                """.formatted(event.transactionNumber(), event.status());
+                """.formatted(transaction.getAccount(),
+                transaction.getType(),
+                transaction.getAmount(),
+                event.status(),
+                transaction.getDate());
 
         switch (event.status()) {
             case ACCEPTED: {
