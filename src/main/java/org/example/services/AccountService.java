@@ -9,14 +9,13 @@ import org.example.entities.Account;
 import org.example.entities.Transaction;
 import org.example.enums.TransactionStatus;
 import org.example.exceptions.InsufficientFundException;
-import org.example.kafka.FindStrangeActivity;
+import org.example.kafka.FindActivity;
 import org.example.repositories.AccountRepository;
 import org.example.repositories.TransactionRepository;
 import org.example.utils.GenerateTrasaction;
 import org.springframework.stereotype.Service;
 import org.example.exceptions.AccountNotFoundException;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Service
@@ -25,7 +24,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
-    private final FindStrangeActivity findStrangeActivity;
+    private final FindActivity findActivity;
     private final GenerateTrasaction generateTrasaction;
 
     public GetAccountBalanceResponse getAccountBalance(GetAccountBalanceRequest request) {
@@ -53,28 +52,13 @@ public class AccountService {
         transaction.setTransactionNumber(transactionNumber);
         transactionRepository.save(transaction);
 
-        findStrangeActivity.findStrangeActivity(request.getAmount(), account.getPhoneNumber(), transactionNumber);
+        findActivity.findActivity(request.getAmount(), account.getPhoneNumber(), transactionNumber, account.getOwner());
 
         OperationResponseType response = new OperationResponseType();
-
-        if (findStrangeActivity.findStrangeActivity(request.getAmount(), account.getPhoneNumber(), transactionNumber)) {
-            response.setAccountNumber(account.getAccountNumber());
-            response.setAmount(request.getAmount());
-            response.setType("deposit");
-            response.setStatus(String.valueOf(TransactionStatus.PENDING));
-            return response;
-        }
-
-        account.setBalance(account.getBalance().add(transaction.getAmount()));
-        transaction.setStatus(TransactionStatus.ACCEPTED);
-        accountRepository.save(account);
-        transactionRepository.save(transaction);
-
         response.setAccountNumber(account.getAccountNumber());
         response.setAmount(request.getAmount());
         response.setType("deposit");
-        response.setStatus(String.valueOf(TransactionStatus.ACCEPTED));
-
+        response.setStatus(String.valueOf(TransactionStatus.PENDING));
         return response;
     }
 
@@ -98,25 +82,13 @@ public class AccountService {
             transaction.setTransactionNumber(transactionNumber);
             transactionRepository.save(transaction);
 
-            if (findStrangeActivity.findStrangeActivity(request.getAmount(), account.getPhoneNumber(), transactionNumber)) {
-                response.setAccountNumber(account.getAccountNumber());
-                response.setAmount(request.getAmount());
-                response.setType("withdraw");
-                response.setStatus(String.valueOf(TransactionStatus.PENDING));
-                return response;
-            }
-
-            account.setBalance(account.getBalance().subtract(transaction.getAmount()));
-            transaction.setStatus(TransactionStatus.ACCEPTED);
-            accountRepository.save(account);
-            transactionRepository.save(transaction);
+            findActivity.findActivity(request.getAmount(), account.getPhoneNumber(), transactionNumber, account.getOwner());
 
             response.setAccountNumber(account.getAccountNumber());
             response.setAmount(request.getAmount());
             response.setType("withdraw");
-            response.setStatus(String.valueOf(TransactionStatus.ACCEPTED));
+            response.setStatus(String.valueOf(TransactionStatus.PENDING));
+            return response;
         }
-
-        return response;
     }
 }
