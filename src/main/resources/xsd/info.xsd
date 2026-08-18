@@ -29,7 +29,10 @@
 
     <xs:complexType name="OperationResponseType">
         <xs:sequence>
-            <xs:element name="balance" type="xs:decimal"/>
+            <xs:element name="accountNumber" type="xs:integer"/>
+            <xs:element name="amount" type="xs:decimal"/>
+            <xs:element name="type" type="xs:string"/>
+            <xs:element name="status" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 

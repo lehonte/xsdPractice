@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.enums.TransactionStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,4 +31,11 @@ public class Transaction {
 
     @Column(name = "date", nullable = false)
     private LocalDate date;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private TransactionStatus status;
+
+    @Column(name = "transaction_number", nullable = false, unique = true)
+    private String transactionNumber;
 }
