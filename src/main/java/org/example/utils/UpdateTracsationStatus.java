@@ -29,17 +29,9 @@ public class UpdateTracsationStatus {
                 .orElseThrow(() -> new AccountNotFoundException("Счет " + transaction.getAccount().getAccountNumber() + " не найден"));
 
         switch (transaction.getType()) {
-            case "deposit": {
-                account.setBalance(account.getBalance().add(transaction.getAmount()));
-                break;
-            }
-            case "withdrawal": {
-                account.setBalance(account.getBalance().subtract(transaction.getAmount()));
-                break;
-            }
-            default: {
-                log.error("Неизвестная операция {}",transaction.getType());
-            }
+            case "deposit" -> account.setBalance(account.getBalance().add(transaction.getAmount()));
+            case "withdrawal" -> account.setBalance(account.getBalance().subtract(transaction.getAmount()));
+            default -> log.error("Неизвестная операция {}",transaction.getType());
         }
 
         transaction.setStatus(TransactionStatus.ACCEPTED);

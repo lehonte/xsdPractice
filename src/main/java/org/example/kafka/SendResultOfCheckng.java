@@ -6,7 +6,8 @@ import org.example.controllers.WebSocketHandler;
 import org.example.entities.Transaction;
 import org.example.enums.TransactionStatus;
 import org.example.eventEntities.ResultOfChecking;
-import org.example.events.ResultOfChekingEvent;
+import org.example.events.ResultOfCheckingEvent;
+import org.example.events.TransactionStatusAvro;
 import org.example.exceptions.TransactionNotFoundException;
 import org.example.exceptions.UnknownStatusException;
 import org.example.repositories.ResultOfCheckingRepository;
@@ -31,19 +32,29 @@ public class SendResultOfCheckng {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @KafkaListener(topics = "result_of_checking")
-    public void resultOfChekingActivity(ResultOfChekingEvent event) {
+    public void resultOfChekingActivity(ResultOfCheckingEvent event) {
 
-        if (resultOfCheckingRepository.existsByTransactionNumber(event.transactionNumber())) {
-            log.info("Результат транзакции {} уже отправлен на обработку", event.transactionNumber());
+        String transactionNumber = event.getTransactionNumber();
+        String reason = event.getReason();
+        TransactionStatus status = statusFromAvro(event.getStatus());
+
+        if (resultOfCheckingRepository.existsByTransactionNumber(transactionNumber)) {
+            log.info("Результат транзакции {} уже отправлен на обработку", transactionNumber);
             return;
         }
 
-        Transaction transaction = transactionRepository.findByTransactionNumber(event.transactionNumber())
-                .orElseThrow(() -> new TransactionNotFoundException(event.transactionNumber()));
+        Transaction transaction = transactionRepository.findByTransactionNumber(transactionNumber)
+                .orElseThrow(() -> new TransactionNotFoundException(transactionNumber));
 
-        resultOfCheckingRepository.save(new ResultOfChecking(event.transactionNumber()));
+        resultOfCheckingRepository.save(new ResultOfChecking(transactionNumber));
 
-        log.info("Обработанная транзация {} получена с обработки", event.transactionNumber());
+        log.info("Обработанная транзация {} получена с обработки", transactionNumber);
+
+        switch (status) {
+            case ACCEPTED -> updateTracsationStatus.acceptedTransaction(transactionNumber);
+            case BLOCKED -> updateTracsationStatus.blockedTransaction(transactionNumber);
+            default -> throw new UnknownStatusException("Неизвестный статус: " + status);
+        }
 
         String xml = """
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -59,22 +70,8 @@ public class SendResultOfCheckng {
                 transaction.getAccount(),
                 transaction.getType(),
                 transaction.getAmount(),
-                event.status(),
-                event.reason());
-
-        switch (event.status()) {
-            case ACCEPTED: {
-                updateTracsationStatus.acceptedTransaction(event.transactionNumber());
-                break;
-            }
-            case BLOCKED: {
-                updateTracsationStatus.blockedTransaction(event.transactionNumber());
-                break;
-            }
-            default: {
-                throw new UnknownStatusException("Неизвестный статус: " + event.status());
-            }
-        }
+                status,
+                reason);
 
         //нельзя отсюда websocket прямо вызывать тк мгновенно улетит соо и это не откатится если в бд не смог обновиться
         //поэтому юзаем TransactionSynchronizationAdapter, чтобы отправлялось соо только после успешного коммита в бд
@@ -83,8 +80,15 @@ public class SendResultOfCheckng {
             @Override
             public void afterCommit() {
                 webSocketHandler.sending(xml);
-                log.info("Сообщение со статусом транзакции {} перенаправлено клиенту", event.transactionNumber());
+                log.info("Сообщение со статусом транзакции {} перенаправлено клиенту", transactionNumber);
             }
         });
+    }
+
+    private TransactionStatus statusFromAvro(TransactionStatusAvro statusAvro) {
+        return switch (statusAvro) {
+            case ACCEPTED -> TransactionStatus.ACCEPTED;
+            case BLOCKED -> TransactionStatus.BLOCKED;
+        };
     }
 }

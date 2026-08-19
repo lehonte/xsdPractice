@@ -1,0 +1,28 @@
+{
+    "type": "record",
+    "name": "CheckTransactionEvent",
+    "namespace": "org.example.events",
+    "fields": [
+        {
+            "name": "phoneNumber",
+            "type": "string"
+        },
+        {
+            "name": "transactionNumber",
+            "type": "string"
+        },
+        {
+            "name": "amount",
+            "type": {
+                "type": "bytes",
+                "logicalType": "decimal",
+                "precision": 16,
+                "scale": 2
+            }
+        },
+        {
+            "name": "owner",
+            "type": "string"
+        }
+    ]
+}
