@@ -1,0 +1,26 @@
+{
+    "type": "record",
+    "name": "ResultOfCheckingEvent",
+    "namespace": "org.example.events",
+    "fields": [
+        {
+            "name": "status",
+            "type": {
+                "type": "enum",
+                "name": "TransactionStatusAvro",
+                "symbols": [
+                    "ACCEPTED",
+                    "BLOCKED"
+                ]
+            }
+        },
+        {
+            "name": "transactionNumber",
+            "type": "string"
+        },
+        {
+            "name": "reason",
+            "type": ["null", "string"]
+        }
+    ]
+}

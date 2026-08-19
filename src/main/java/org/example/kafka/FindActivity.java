@@ -16,11 +16,11 @@ public class FindActivity {
     private final KafkaTemplate<String, CheckTransactionEvent> kafkaTemplate;
 
     public void findActivity(BigDecimal amount, String phoneNumber, String transactionNumber, String owner) {
-        CheckTransactionEvent event = CheckTransactionEvent.builder()
-                .owner(owner)
-                .amount(amount)
-                .phoneNumber(phoneNumber)
-                .transactionNumber(transactionNumber)
+        CheckTransactionEvent event = CheckTransactionEvent.newBuilder()
+                .setOwner(owner)
+                .setAmount(amount)
+                .setPhoneNumber(phoneNumber)
+                .setTransactionNumber(transactionNumber)
                 .build();
         kafkaTemplate.send("check_transaction_topic", event);
         log.info("Транзакция {} отправлена на проверку", transactionNumber);
