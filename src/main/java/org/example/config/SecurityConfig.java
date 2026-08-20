@@ -1,9 +1,6 @@
 package org.example.config;
 
-import org.example.jwt.JwtAuthFilter;
-import org.example.jwt.JwtRequestFilter;
-import org.example.jwt.JwtTokenGenerator;
-import org.example.jwt.JwtUserDetailService;
+import org.example.jwt.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,9 +29,10 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JwtRequestFilter(),
                         UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtWebSocketFilter(token, userDetail),
+                        UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthFilter(token, userDetail),
                         UsernamePasswordAuthenticationFilter.class);
         return http.build();
