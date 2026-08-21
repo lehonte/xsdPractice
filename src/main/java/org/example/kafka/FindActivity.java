@@ -15,11 +15,11 @@ public class FindActivity {
 
     private final KafkaTemplate<String, CheckTransactionEvent> kafkaTemplate;
 
-    public void findActivity(BigDecimal amount, String phoneNumber, String transactionNumber, String owner) {
+    public void findActivity(BigDecimal amount, String email, String transactionNumber, String owner) {
         CheckTransactionEvent event = CheckTransactionEvent.newBuilder()
                 .setOwner(owner)
                 .setAmount(amount)
-                .setPhoneNumber(phoneNumber)
+                .setEmail(email)
                 .setTransactionNumber(transactionNumber)
                 .build();
         kafkaTemplate.send("check_transaction_topic", event);
