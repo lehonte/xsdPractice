@@ -65,8 +65,17 @@
             <xs:element name="amount" type="xs:decimal"/>
             <xs:element name="type" type="xs:string"/>
             <xs:element name="date" type="xs:date"/>
+            <xs:element name="status" type="TransactionStatusEnum"/>
         </xs:sequence>
     </xs:complexType>
+
+    <xs:simpleType name="TransactionStatusEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ACCEPTED"/>
+            <xs:enumeration value="PENDING"/>
+            <xs:enumeration value="BLOCKED"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:element name="LoginRequest">
         <xs:complexType>
