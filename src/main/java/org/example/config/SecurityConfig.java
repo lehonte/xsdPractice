@@ -29,9 +29,8 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JwtRequestFilter(),
                         UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtWebSocketFilter(token, userDetail),
-                        UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
+                        .requestMatchers("/xsdPractice").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthFilter(token, userDetail),
                         UsernamePasswordAuthenticationFilter.class);
