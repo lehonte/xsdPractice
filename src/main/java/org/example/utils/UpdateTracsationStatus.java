@@ -30,7 +30,7 @@ public class UpdateTracsationStatus {
 
         switch (transaction.getType()) {
             case "deposit" -> account.setBalance(account.getBalance().add(transaction.getAmount()));
-            case "withdrawal" -> account.setBalance(account.getBalance().subtract(transaction.getAmount()));
+            case "withdraw" -> account.setBalance(account.getBalance().subtract(transaction.getAmount()));
             default -> log.error("Неизвестная операция {}",transaction.getType());
         }
 
