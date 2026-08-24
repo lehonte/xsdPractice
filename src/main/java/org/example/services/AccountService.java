@@ -13,6 +13,8 @@ import org.example.kafka.FindActivity;
 import org.example.repositories.AccountRepository;
 import org.example.repositories.TransactionRepository;
 import org.example.utils.GenerateTrasaction;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.example.exceptions.AccountNotFoundException;
 
@@ -27,9 +29,12 @@ public class AccountService {
     private final FindActivity findActivity;
     private final GenerateTrasaction generateTrasaction;
 
-    public GetAccountBalanceResponse getAccountBalance(GetAccountBalanceRequest request) {
+    public GetAccountBalanceResponse getAccountBalance(GetAccountBalanceRequest request, String username) {
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
                 .orElseThrow(() -> new AccountNotFoundException("Счет " + request.getAccountNumber() + " не найден"));
+
+        if (!account.getOwner().equals(username)) throw new AccessDeniedException("Вы не имеете доступа к счету "
+                + request.getAccountNumber());
 
         GetAccountBalanceResponse response = new GetAccountBalanceResponse();
         response.setOwnerName(account.getOwner());
@@ -38,23 +43,17 @@ public class AccountService {
         return response;
     }
 
-    public OperationResponseType deposit(OperationRequestType request) {
+    public OperationResponseType deposit(OperationRequestType request, String username) {
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
                 .orElseThrow(() -> new AccountNotFoundException("Счет " + request.getAccountNumber() + " не найден"));
 
-        Transaction transaction = new Transaction();
-        transaction.setAmount(request.getAmount());
-        transaction.setAccount(account);
-        transaction.setType("deposit");
-        transaction.setDate(LocalDate.now());
-        transaction.setStatus(TransactionStatus.PENDING);
-        String transactionNumber = generateTrasaction.generateTransactionNumber(transaction);
-        transaction.setTransactionNumber(transactionNumber);
-        transactionRepository.save(transaction);
-
-        findActivity.findActivity(request.getAmount(), account.getEmail(), transactionNumber, account.getOwner());
+        if (!account.getOwner().equals(username)) throw new AccessDeniedException("Вы не имеете доступа к счету "
+                + request.getAccountNumber());
 
         OperationResponseType response = new OperationResponseType();
+
+        makeTransaction(request, account, "deposit");
+
         response.setAccountNumber(account.getAccountNumber());
         response.setAmount(request.getAmount());
         response.setType("deposit");
@@ -62,9 +61,12 @@ public class AccountService {
         return response;
     }
 
-    public OperationResponseType withdraw(OperationRequestType request) throws InsufficientFundException {
+    public OperationResponseType withdraw(OperationRequestType request, String username) throws InsufficientFundException {
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
                 .orElseThrow(() -> new AccountNotFoundException("Счет " + request.getAccountNumber() + " не найден"));
+
+        if (!account.getOwner().equals(username)) throw new AccessDeniedException("Вы не имеете доступа к счету "
+                + request.getAccountNumber());
 
         OperationResponseType response = new OperationResponseType();
 
@@ -72,17 +74,7 @@ public class AccountService {
             throw new InsufficientFundException("Вы не можете снять больше денег, чем есть у вас на счете");
         } else {
 
-            Transaction transaction = new Transaction();
-            transaction.setAmount(request.getAmount());
-            transaction.setAccount(account);
-            transaction.setType("withdraw");
-            transaction.setDate(LocalDate.now());
-            transaction.setStatus(TransactionStatus.PENDING);
-            String transactionNumber = generateTrasaction.generateTransactionNumber(transaction);
-            transaction.setTransactionNumber(transactionNumber);
-            transactionRepository.save(transaction);
-
-            findActivity.findActivity(request.getAmount(), account.getEmail(), transactionNumber, account.getOwner());
+            makeTransaction(request, account, "withdraw");
 
             response.setAccountNumber(account.getAccountNumber());
             response.setAmount(request.getAmount());
@@ -90,5 +82,19 @@ public class AccountService {
             response.setStatus(String.valueOf(TransactionStatus.PENDING));
             return response;
         }
+    }
+
+    private void makeTransaction(OperationRequestType request, Account account, String operationType) {
+        Transaction transaction = new Transaction();
+        transaction.setAmount(request.getAmount());
+        transaction.setAccount(account);
+        transaction.setType(operationType);
+        transaction.setDate(LocalDate.now());
+        transaction.setStatus(TransactionStatus.PENDING);
+        String transactionNumber = generateTrasaction.generateTransactionNumber(transaction);
+        transaction.setTransactionNumber(transactionNumber);
+        transactionRepository.save(transaction);
+
+        findActivity.findActivity(request.getAmount(), account.getEmail(), transactionNumber, account.getOwner());
     }
 }
