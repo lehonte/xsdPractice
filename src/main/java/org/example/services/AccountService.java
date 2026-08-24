@@ -52,7 +52,7 @@ public class AccountService {
         transaction.setTransactionNumber(transactionNumber);
         transactionRepository.save(transaction);
 
-        findActivity.findActivity(request.getAmount(), account.getPhoneNumber(), transactionNumber, account.getOwner());
+        findActivity.findActivity(request.getAmount(), account.getEmail(), transactionNumber, account.getOwner());
 
         OperationResponseType response = new OperationResponseType();
         response.setAccountNumber(account.getAccountNumber());
@@ -82,7 +82,7 @@ public class AccountService {
             transaction.setTransactionNumber(transactionNumber);
             transactionRepository.save(transaction);
 
-            findActivity.findActivity(request.getAmount(), account.getPhoneNumber(), transactionNumber, account.getOwner());
+            findActivity.findActivity(request.getAmount(), account.getEmail(), transactionNumber, account.getOwner());
 
             response.setAccountNumber(account.getAccountNumber());
             response.setAmount(request.getAmount());

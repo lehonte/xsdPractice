@@ -14,10 +14,10 @@ import org.apache.avro.message.SchemaStore;
 
 @org.apache.avro.specific.AvroGenerated
 public class CheckTransactionEvent extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = -2359446997712605731L;
+  private static final long serialVersionUID = 2751101286825006386L;
 
 
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"CheckTransactionEvent\",\"namespace\":\"org.example.events\",\"fields\":[{\"name\":\"phoneNumber\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"transactionNumber\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"amount\",\"type\":{\"type\":\"bytes\",\"logicalType\":\"decimal\",\"precision\":16,\"scale\":2}},{\"name\":\"owner\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"CheckTransactionEvent\",\"namespace\":\"org.example.events\",\"fields\":[{\"name\":\"email\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"transactionNumber\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"amount\",\"type\":{\"type\":\"bytes\",\"logicalType\":\"decimal\",\"precision\":16,\"scale\":2}},{\"name\":\"owner\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   private static final SpecificData MODEL$ = new SpecificData();
@@ -76,7 +76,7 @@ public class CheckTransactionEvent extends org.apache.avro.specific.SpecificReco
     return DECODER.decode(b);
   }
 
-  private java.lang.String phoneNumber;
+  private java.lang.String email;
   private java.lang.String transactionNumber;
   private java.math.BigDecimal amount;
   private java.lang.String owner;
@@ -90,13 +90,13 @@ public class CheckTransactionEvent extends org.apache.avro.specific.SpecificReco
 
   /**
    * All-args constructor.
-   * @param phoneNumber The new value for phoneNumber
+   * @param email The new value for email
    * @param transactionNumber The new value for transactionNumber
    * @param amount The new value for amount
    * @param owner The new value for owner
    */
-  public CheckTransactionEvent(java.lang.String phoneNumber, java.lang.String transactionNumber, java.math.BigDecimal amount, java.lang.String owner) {
-    this.phoneNumber = phoneNumber;
+  public CheckTransactionEvent(java.lang.String email, java.lang.String transactionNumber, java.math.BigDecimal amount, java.lang.String owner) {
+    this.email = email;
     this.transactionNumber = transactionNumber;
     this.amount = amount;
     this.owner = owner;
@@ -112,7 +112,7 @@ public class CheckTransactionEvent extends org.apache.avro.specific.SpecificReco
   @Override
   public java.lang.Object get(int field$) {
     switch (field$) {
-    case 0: return phoneNumber;
+    case 0: return email;
     case 1: return transactionNumber;
     case 2: return amount;
     case 3: return owner;
@@ -139,7 +139,7 @@ public class CheckTransactionEvent extends org.apache.avro.specific.SpecificReco
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: phoneNumber = value$ != null ? value$.toString() : null; break;
+    case 0: email = value$ != null ? value$.toString() : null; break;
     case 1: transactionNumber = value$ != null ? value$.toString() : null; break;
     case 2: amount = (java.math.BigDecimal)value$; break;
     case 3: owner = value$ != null ? value$.toString() : null; break;
@@ -148,20 +148,20 @@ public class CheckTransactionEvent extends org.apache.avro.specific.SpecificReco
   }
 
   /**
-   * Gets the value of the 'phoneNumber' field.
-   * @return The value of the 'phoneNumber' field.
+   * Gets the value of the 'email' field.
+   * @return The value of the 'email' field.
    */
-  public java.lang.String getPhoneNumber() {
-    return phoneNumber;
+  public java.lang.String getEmail() {
+    return email;
   }
 
 
   /**
-   * Sets the value of the 'phoneNumber' field.
+   * Sets the value of the 'email' field.
    * @param value the value to set.
    */
-  public void setPhoneNumber(java.lang.String value) {
-    this.phoneNumber = value;
+  public void setEmail(java.lang.String value) {
+    this.email = value;
   }
 
   /**
@@ -256,7 +256,7 @@ public class CheckTransactionEvent extends org.apache.avro.specific.SpecificReco
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<CheckTransactionEvent>
     implements org.apache.avro.data.RecordBuilder<CheckTransactionEvent> {
 
-    private java.lang.String phoneNumber;
+    private java.lang.String email;
     private java.lang.String transactionNumber;
     private java.math.BigDecimal amount;
     private java.lang.String owner;
@@ -272,8 +272,8 @@ public class CheckTransactionEvent extends org.apache.avro.specific.SpecificReco
      */
     private Builder(org.example.events.CheckTransactionEvent.Builder other) {
       super(other);
-      if (isValidValue(fields()[0], other.phoneNumber)) {
-        this.phoneNumber = data().deepCopy(fields()[0].schema(), other.phoneNumber);
+      if (isValidValue(fields()[0], other.email)) {
+        this.email = data().deepCopy(fields()[0].schema(), other.email);
         fieldSetFlags()[0] = other.fieldSetFlags()[0];
       }
       if (isValidValue(fields()[1], other.transactionNumber)) {
@@ -296,8 +296,8 @@ public class CheckTransactionEvent extends org.apache.avro.specific.SpecificReco
      */
     private Builder(org.example.events.CheckTransactionEvent other) {
       super(SCHEMA$, MODEL$);
-      if (isValidValue(fields()[0], other.phoneNumber)) {
-        this.phoneNumber = data().deepCopy(fields()[0].schema(), other.phoneNumber);
+      if (isValidValue(fields()[0], other.email)) {
+        this.email = data().deepCopy(fields()[0].schema(), other.email);
         fieldSetFlags()[0] = true;
       }
       if (isValidValue(fields()[1], other.transactionNumber)) {
@@ -315,41 +315,41 @@ public class CheckTransactionEvent extends org.apache.avro.specific.SpecificReco
     }
 
     /**
-      * Gets the value of the 'phoneNumber' field.
+      * Gets the value of the 'email' field.
       * @return The value.
       */
-    public java.lang.String getPhoneNumber() {
-      return phoneNumber;
+    public java.lang.String getEmail() {
+      return email;
     }
 
 
     /**
-      * Sets the value of the 'phoneNumber' field.
-      * @param value The value of 'phoneNumber'.
+      * Sets the value of the 'email' field.
+      * @param value The value of 'email'.
       * @return This builder.
       */
-    public org.example.events.CheckTransactionEvent.Builder setPhoneNumber(java.lang.String value) {
+    public org.example.events.CheckTransactionEvent.Builder setEmail(java.lang.String value) {
       validate(fields()[0], value);
-      this.phoneNumber = value;
+      this.email = value;
       fieldSetFlags()[0] = true;
       return this;
     }
 
     /**
-      * Checks whether the 'phoneNumber' field has been set.
-      * @return True if the 'phoneNumber' field has been set, false otherwise.
+      * Checks whether the 'email' field has been set.
+      * @return True if the 'email' field has been set, false otherwise.
       */
-    public boolean hasPhoneNumber() {
+    public boolean hasEmail() {
       return fieldSetFlags()[0];
     }
 
 
     /**
-      * Clears the value of the 'phoneNumber' field.
+      * Clears the value of the 'email' field.
       * @return This builder.
       */
-    public org.example.events.CheckTransactionEvent.Builder clearPhoneNumber() {
-      phoneNumber = null;
+    public org.example.events.CheckTransactionEvent.Builder clearEmail() {
+      email = null;
       fieldSetFlags()[0] = false;
       return this;
     }
@@ -479,7 +479,7 @@ public class CheckTransactionEvent extends org.apache.avro.specific.SpecificReco
     public CheckTransactionEvent build() {
       try {
         CheckTransactionEvent record = new CheckTransactionEvent();
-        record.phoneNumber = fieldSetFlags()[0] ? this.phoneNumber : (java.lang.String) defaultValue(fields()[0]);
+        record.email = fieldSetFlags()[0] ? this.email : (java.lang.String) defaultValue(fields()[0]);
         record.transactionNumber = fieldSetFlags()[1] ? this.transactionNumber : (java.lang.String) defaultValue(fields()[1]);
         record.amount = fieldSetFlags()[2] ? this.amount : (java.math.BigDecimal) defaultValue(fields()[2]);
         record.owner = fieldSetFlags()[3] ? this.owner : (java.lang.String) defaultValue(fields()[3]);

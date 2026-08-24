@@ -4,7 +4,7 @@
     "namespace": "org.example.events",
     "fields": [
         {
-            "name": "phoneNumber",
+            "name": "email",
             "type": "string"
         },
         {

@@ -1,6 +1,7 @@
 package org.example.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +29,7 @@ public class Account {
     @Column(name = "balance")
     private BigDecimal balance;
 
-    @Column(name = "phone_number", unique = true, nullable = false)
-    private String phoneNumber;
+    @Email(message = "Невалидный email")
+    @Column(name = "email", unique = true, nullable = false)
+    private String email;
 }
