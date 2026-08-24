@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="xsdPractice@localhost" uuid="121a8754-d0fe-4a01-b5c6-049eae9d0aba">
+    <data-source source="LOCAL" name="xsdPracticeCheckingTransaction@localhost" uuid="2d04e067-dea8-4237-895f-c6d85db56934">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/xsdPractice</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/xsdPracticeCheckingTransaction</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
@@ -13,11 +13,11 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="xsdPracticeCheckingTransaction@localhost" uuid="2d04e067-dea8-4237-895f-c6d85db56934">
+    <data-source source="LOCAL" name="xsdPractice@localhost" uuid="76baf9ae-db45-4cf3-8a7b-2ad3fd7fdc80">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/xsdPracticeCheckingTransaction</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/xsdPractice</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />

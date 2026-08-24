@@ -5,9 +5,13 @@ import com.example.demo.generated.GetTransactionHistoryResponse;
 import com.example.demo.generated.TransactionStatusEnum;
 import com.example.demo.generated.TransactionType;
 import lombok.RequiredArgsConstructor;
+import org.example.entities.Account;
 import org.example.entities.Transaction;
 import org.example.enums.TransactionStatus;
+import org.example.exceptions.AccountNotFoundException;
+import org.example.repositories.AccountRepository;
 import org.example.repositories.TransactionRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -20,11 +24,20 @@ import java.util.List;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
+    private final AccountRepository accountRepository;
 
-    public GetTransactionHistoryResponse getTransactionHistory(GetTransactionHistoryRequest request) {
+    public GetTransactionHistoryResponse getTransactionHistory(GetTransactionHistoryRequest request, String username) {
+        Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
+                .orElseThrow(() -> new AccountNotFoundException("Счет " + request.getAccountNumber() + " не найден"));
+
+        if (!account.getOwner().equals(username)) throw new AccessDeniedException("Вы не имеете доступа к счету "
+                + request.getAccountNumber());
+
         List<Transaction> transactions = transactionRepository.findByAccount_AccountNumber(request.getAccountNumber());
 
         GetTransactionHistoryResponse response = new GetTransactionHistoryResponse();
+
+        if (transactions.isEmpty()) return response;
 
         DatatypeFactory factory;
         try {
